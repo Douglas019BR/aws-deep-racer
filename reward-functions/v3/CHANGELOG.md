@@ -83,43 +83,44 @@ O espaço liberado pela redução dos pesos acomoda a penalidade de borda sem in
 
 ## Mudanças recomendadas no Action Space
 
-O action space atual tem um gap: velocidade 3.5 só existe em ±14°, e não há velocidade intermediária entre 2.7 e 4.0 para ângulos baixos.
+Configuração atual: **steering granularity = 7°**, **máximo = 21°**
+Ângulos possíveis: **-21°, -14°, -7°, 0°, 7°, 14°, 21°** (fixo, definido no console)
 
-### Action space sugerido (22 ações)
+O action space da v2 tem um gap: velocidade 3.5 só existe em ±14°, e não há velocidade intermediária entre 2.7 e 4.0 para ângulos baixos (0°, ±7°).
+
+### Action space sugerido (19 ações)
+
+Mantém a mesma granularidade de 7° e máximo de 21°. Apenas redistribui as velocidades:
 
 ```json
 [
-  {"speed": 1.5, "steering_angle": -20},
-  {"speed": 2.7, "steering_angle": -20},
-  {"speed": 1.5, "steering_angle": -15},
-  {"speed": 2.7, "steering_angle": -15},
-  {"speed": 1.5, "steering_angle": -10},
-  {"speed": 2.7, "steering_angle": -10},
-  {"speed": 1.5, "steering_angle": -5},
-  {"speed": 2.7, "steering_angle": -5},
-  {"speed": 4.0, "steering_angle": -5},
+  {"speed": 1.5, "steering_angle": -21},
+  {"speed": 2.7, "steering_angle": -21},
+  {"speed": 1.5, "steering_angle": -14},
+  {"speed": 2.7, "steering_angle": -14},
+  {"speed": 1.5, "steering_angle": -7},
+  {"speed": 2.7, "steering_angle": -7},
+  {"speed": 4.0, "steering_angle": -7},
   {"speed": 1.5, "steering_angle": 0},
   {"speed": 2.7, "steering_angle": 0},
   {"speed": 4.0, "steering_angle": 0},
-  {"speed": 1.5, "steering_angle": 5},
-  {"speed": 2.7, "steering_angle": 5},
-  {"speed": 4.0, "steering_angle": 5},
-  {"speed": 1.5, "steering_angle": 10},
-  {"speed": 2.7, "steering_angle": 10},
-  {"speed": 1.5, "steering_angle": 15},
-  {"speed": 2.7, "steering_angle": 15},
-  {"speed": 1.5, "steering_angle": 20},
-  {"speed": 2.7, "steering_angle": 20}
+  {"speed": 1.5, "steering_angle": 7},
+  {"speed": 2.7, "steering_angle": 7},
+  {"speed": 4.0, "steering_angle": 7},
+  {"speed": 1.5, "steering_angle": 14},
+  {"speed": 2.7, "steering_angle": 14},
+  {"speed": 1.5, "steering_angle": 21},
+  {"speed": 2.7, "steering_angle": 21}
 ]
 ```
 
-**Mudanças em relação ao AS da v2:**
-- Removido 3.5 (não alinha com a reward function e só existia em ±14°)
-- Granularidade de steering: 5° em vez de 7° — melhor controle em curvas suaves
-- Velocidade 4.0 restrita a ±5° e 0° — só faz sentido em retas
-- 22 ações (vs 19 na v2) — aumento pequeno, não impacta convergência significativamente
+**Mudanças em relação ao AS da v2 (17 ações vs 19):**
+- Removido 3.5 m/s em ±14° — não alinha com a reward function (velocidade ótima intermediária agora é 2.7)
+- Removido 4.0 m/s em ±14° — nunca existiu, mas confirmado que 4.0 fica restrito a 0° e ±7°
+- 2.7 m/s disponível em **todos** os ângulos — dá flexibilidade total na faixa intermediária
+- 1.5 m/s disponível em **todos** os ângulos — garante opção segura em qualquer situação
 
-> **Nota:** Se preferir manter o action space atual de 19 ações, a reward function v3 já funciona — ela foi desenhada para alinhar com as velocidades 1.5, 2.7 e 4.0 que existem no AS atual.
+> **Nota:** Se preferir manter as 19 ações originais, a reward function v3 já funciona — ela foi desenhada para alinhar com 1.5, 2.7 e 4.0 que existem no AS atual. A velocidade 3.5 simplesmente receberá reward parcial (penalizada por estar entre 2.7 e 4.0).
 
 ---
 
@@ -159,5 +160,7 @@ Look-ahead fixo 5 wp            →  Adaptativo (3-10 wp)
 Eficiência sem piso              →  Piso de 15 steps
 Sem penalidade de borda          →  -0.2 no último 20% da largura
 Pesos: 0.45/0.55                 →  0.40/0.50 + penalidade
+AS: 19 ações com 3.5 m/s        →  17 ações sem 3.5 m/s (opcional)
+Steering granularity: 7° / max 21° (mantido)
 ~45 linhas                       →  ~50 linhas
 ```
