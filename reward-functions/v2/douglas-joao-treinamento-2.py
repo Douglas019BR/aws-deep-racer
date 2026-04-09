@@ -39,9 +39,9 @@ class Reward:
         if curve_diff <= 5:
             optimal_speed = 4.0
         elif curve_diff <= 10:
-            optimal_speed = 3.3
+            optimal_speed = 3.5
         elif curve_diff <= 15:
-            optimal_speed = 2.5
+            optimal_speed = 2.7
         else:
             optimal_speed = 1.5
 
@@ -51,7 +51,7 @@ class Reward:
         efficiency = (progress / steps) * 2.5 if steps > 0 else 0.0
 
         # ── Reward final ──
-        reward = 0.55 * speed_reward + 0.45 * efficiency
+        reward = 0.45 * speed_reward + 0.55 * efficiency
 
         # ── Bônus: volta completa — escalonado por steps ──
         if progress >= 99.0:
